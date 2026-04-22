@@ -155,6 +155,45 @@
             transform: translateY(0);
         }
 
+        /* 公告牌样式 */
+        .notice-board {
+            background: #f8fafc;
+            border: 1px dashed #cbd5e0;
+            border-radius: 16px;
+            padding: 24px;
+            margin-top: 15px;
+            margin-bottom: 30px;
+            position: relative;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.02);
+        }
+        .notice-board::before {
+            content: "About Me";
+            position: absolute;
+            top: -14px;
+            left: 24px;
+            background: var(--primary-color);
+            color: #ffffff;
+            font-size: 13px;
+            font-weight: bold;
+            padding: 4px 14px;
+            border-radius: 12px;
+            box-shadow: 0 4px 10px rgba(91, 137, 255, 0.3);
+            letter-spacing: 0.5px;
+        }
+
+        /* 打字机光标闪烁 */
+        @keyframes cursor-blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0; }
+        }
+        .typed-cursor {
+            display: inline-block;
+            margin-left: 2px;
+            color: var(--primary-color);
+            font-weight: bold;
+            animation: cursor-blink 0.8s infinite;
+        }
+
         .section-title {
             font-size: 19px;
             font-weight: 700;
@@ -335,14 +374,14 @@
 
         <div class="layout-grid">
             <div class="left-col">
-                <div class="reveal-up">
+                <div class="reveal-up notice-board" id="bio-text-container">
                     <p class="bio-text"><span id="dynamic-greeting">你好！</span>这里是我的个人小窝，有缘在此相遇，中文 / English 可以，欢迎扩列喵 👋</p>
-                    <p class="bio-text">目前是一名大一学生，非计算机专业，考虑转专业中，喜欢折腾一点小玩意，热衷于计算机等方面探索</p>
-                    <p class="bio-text">经常在网上活跃，大部分社交平台有自己的账号，喜欢凌晨刷帖发帖，也许可能会在其它社交平台相遇</p>
+                    <p class="bio-text">目前是大一学生，非计算机专业，考虑转专业中，喜欢折腾一点小玩意，热衷于计算机等方面探索</p>
+                    <p class="bio-text">经常在网上活跃，大部分社交平台有自己的账号，喜欢凌晨刷帖发帖，也许会在其它社交平台相遇</p>
                     <p class="bio-text">来自江西省九江市修水县，几乎没出过大山，现位于湖南农业大学就读本科，专业是土地科学与技术</p>
                     <p class="bio-text">18岁，胆小社恐内向，成分复杂，可能是个宅？二次元？管人痴？偶尔摄影，喜欢风景</p>
-                    <p class="bio-text">希望能去 Tokyo 和 Taibei 旅游，圣地巡礼，目前筹划中......</p>
-                    <p class="bio-text">平时喜欢看看番剧，听听歌，玩玩galgame，打打音游，也可以一起玩 Minecraft </p>
+                    <p class="bio-text">希望能去 Tokyo 和 Taibei 旅游，圣地巡礼，目前筹划中？......</p>
+                    <p class="bio-text">平时喜欢看看番剧，听听歌，玩玩 galgame ，打打音游，也可以一起玩 Minecraft </p>
                     <p class="bio-text">游戏和代码水平技术菜，没实力，希望各位大佬带带我（＞﹏＜）</p>
                 </div>
 
@@ -468,14 +507,14 @@
                     </div>
                     <div class="card-flat tilt-card reveal-up">
                         <div class="card-header">
-                            <h3>RoboMaster 视觉组</h3>
-                            <span class="status-badge">Team</span>
+                            <h3>湘农机器人 视觉组</h3>
+                            <span class="status-badge">RC RM</span>
                         </div>
                         <p>负责视觉算法的开发、优化与调试</p>
                         <div class="tech-tags">
                             <span class="tech-tag">OpenCV</span>
-                            <span class="tech-tag">Python</span>
-                            <span class="tech-tag">Ubuntu</span>
+                            <span class="tech-tag">ROS2</span>
+                            <span class="tech-tag">Ubantu</span>
                         </div>
                     </div>
                 </div>
@@ -522,12 +561,68 @@
         /* 动态时间问候语 */
         const hour = new Date().getHours();
         let greetingText = "你好！";
-        if (hour < 5) greetingText = "夜深了，修仙中 🌙，";
+        if (hour < 5) greetingText = "夜深了，修仙喵 🌙，";
         else if (hour < 11) greetingText = "早上好喵 ⛅，";
         else if (hour < 14) greetingText = "中午好喵 ☀️，";
         else if (hour < 18) greetingText = "下午好喵 ☕，";
         else greetingText = "晚上好喵 ✨，";
         document.getElementById('dynamic-greeting').innerText = greetingText;
+
+        /* 打字机效果 */
+        const bioBox = document.getElementById('bio-text-container');
+        if (bioBox) {
+            // 提前固定容器的最终高度
+            bioBox.style.minHeight = bioBox.offsetHeight + 'px';
+
+            // 在动态问候语加载完毕后再获取实际内容
+            const htmlContent = bioBox.innerHTML;
+            bioBox.innerHTML = ''; // 清空内容准备打字
+            
+            let charIndex = 0;
+            let isTag = false;
+            let currentText = '';
+            
+            function typeWriter() {
+                // 使用循环快速跳过HTML标签和源代码中的空白缩进，彻底消除段落之间的停顿卡顿
+                while (charIndex < htmlContent.length) {
+                    let char = htmlContent.charAt(charIndex);
+                    currentText += char;
+                    charIndex++;
+                    
+                    if (char === '<') isTag = true;
+                    if (char === '>') isTag = false;
+                    
+                    if (!isTag && char !== '>') {
+                        if (char.trim() === '') {
+                            // 空白符（如源码换行、空格）瞬间跳过
+                            continue;
+                        } else {
+                            // 可见字符，跳出循环等待下一次文字打印
+                            break;
+                        }
+                    }
+                }
+                
+                // 为了让换行段落的光标不用另起一行，当内容以 </p> 结尾时，自动将光标插回最后一个标签内
+                let renderText = currentText;
+                if (/<\/p>\s*$/i.test(renderText)) {
+                    renderText = renderText.replace(/<\/p>\s*$/i, '<span class="typed-cursor">|</span></p>');
+                } else {
+                    renderText += '<span class="typed-cursor">|</span>';
+                }
+                bioBox.innerHTML = renderText;
+                
+                if (charIndex < htmlContent.length) {
+                    setTimeout(typeWriter, 20); // 控制打字速度，当前为25ms每个字
+                } else {
+                    // 结束后恢复自适应高度，以免影响之后可能的窗口缩放
+                    bioBox.style.minHeight = 'auto';
+                }
+            }
+            
+            // 延迟800ms等上滑浮现动画完成后再开始打字
+            setTimeout(typeWriter, 800);
+        }
 
         /* 光环+圆点 */
         if (window.matchMedia("(pointer: fine)").matches) {
